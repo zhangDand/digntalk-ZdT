@@ -1,2 +1,2 @@
-# digntalk-ZdT
+# dingtalk-ZdT
 dingtalk manage tools
