@@ -8,9 +8,10 @@ const corpSecret = 'EGdNOA5xt-MILQy49L1y5peVQFKkKtMQ_S-HdGsemkujaebSiBt2cemXYnrZ
 const host = 'https://oapi.dingtalk.com'
 const departmentlist = '/department/list'
 const authscopes = '/auth/scopes';
-
-
-(async function() {
+const attendancelist = '/attendance/list'
+const usersimplelist = '/user/simplelist' 
+!!(async function() {
+    
     async function gottoken(tokenhost, corpId, corpSecret) {
         return new Promise(function(resolve, reject) {
             superagent
@@ -18,7 +19,7 @@ const authscopes = '/auth/scopes';
                 .query({ corpid: corpId })
                 .query({ corpsecret: corpSecret })
                 .end((err, res) => {
-                    // console.log(res.text)
+                    // 
                     // token = { access_token: res.body.access_token }
                     resolve({ access_token: res.body.access_token })
                 })
@@ -27,7 +28,7 @@ const authscopes = '/auth/scopes';
     let token = await gottoken(tokenhost, corpId, corpSecret);
     setInterval(async function() {
         token = await gottoken(tokenhost, corpId, corpSecret)
-    }, 30);
+    }, 7200);
     async function getscopes() {
         // let token = await gottoken(tokenhost, corpId, corpSecret)
         return new Promise(function(resolve, reject) {
@@ -39,19 +40,57 @@ const authscopes = '/auth/scopes';
                 })
         })
     }
-    async function getdepartment() {
+    async function getdepartmentlist() {
         // let token = await gottoken(tokenhost, corpId, corpSecret)
         let authscopes = await getscopes()
         superagent
             .get(host + departmentlist)
             .query(token)
             .end((err, res) => {
-                console.log(res.text)
+                
             })
     }
 
+    // 获取授权范围内的部门ID列表
+    async function getScopesDeptId(){
+        let scopes = (await getscopes())
+        
+        let depts = scopes.auth_org_scopes.authed_dept
+        return depts
+    }
+    // 获取部门成员
+    async function getDeptMenberId(){
+        let depts = await getScopesDeptId()
+        let menbers = []
+        superagent
+            .get(host + usersimplelist)
+            .query(token)
+            .query({department_id:depts})
+            .end((err,res)=>{
+                console.log(res.body)
+            })
+    }
+    // 获取全部打卡结果列表
+    async function getAttendanceList(){
+        superagent
+            .post(host + attendancelist)
+            .query(token)
+            .send({
+                'workDateFrom':'2017-8-11 00:00:00',
+                'workDateTo' : '2017-8-16 23:59:00',
+            })
+            .end((err, res)=>{
+                if(!err){
+                    
+                }
+            })
+    }
 
-    (async function() {
-        console.log(await getscopes())
+    !(async function() {
+        // 
+        // 
+        // 
+        console.log(getDeptMenberId());
     })()
+
 })()
