@@ -148,22 +148,27 @@ const usersimplelist = '/user/simplelist'
     !(async function() {
         let menberlist = await getAllMenber()
         let recordresults = []
+        console.log(menberlist)
         for(let menber of menberlist){
-            let result = await getAttendance(menber,"2017-8-19")
+            let result = await getAttendance(menber,"2017-9-20")
             if(result.recordresult.length!==0){
                 result.name = menber.name
                 recordresults.push(result)
             }
         }
         console.log(recordresults)
-        function parseResults(resultList){
+        function parseResults(resultList){ // 解析打卡结果列表，返回可视化打卡结果
             let arr=[]
-            for(let r of resultList){
+            for(let r of resultList){ //遍历所有打卡结果
                 let out = {}
                 out.name = r.name
-                
+                out.result = new Date(r.recordresult[0].baseCheckTime)
+
+                arr.push(out)
             }
+            console.log(arr)
         }
+        parseResults(recordresults)
     })()
 
 })()
